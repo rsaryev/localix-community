@@ -1,0 +1,10 @@
+{
+  "name": "localix-community",
+  "owner": {
+    "name": "Localix Community"
+  },
+  "metadata": {
+    "description": "Plugins people publish in their own repositories, listed for Localix and Claude Code. Each entry names the repository its plugin lives in; Localix vouches for none of them."
+  },
+  "plugins": []
+}

@@ -1,0 +1,44 @@
+name: Validate
+
+# Every pull request, every push to main, and every night: both lists pass the checks Localix and
+# Claude Code apply to them. Mini app entries are followed to their authors' catalogs, which must
+# answer, list the app, and not take a name from Localix's own catalog. Nothing an entry points at
+# is run.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mini-apps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: rsaryev/localix-marketplace
+          path: .localix-marketplace
+          sparse-checkout: plugins/mini-app-authoring
+      - uses: oven-sh/setup-bun@v2
+      - name: Mini apps
+        run: |
+          .localix-marketplace/plugins/mini-app-authoring/bin/mini-app marketplace validate \
+            .mini-app/marketplace.json --fetch \
+            --reserve https://github.com/rsaryev/localix-marketplace/releases/latest/download/mini-app-catalog.json
+
+  plugins:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Claude Code
+        run: |
+          curl -fsSL https://claude.ai/install.sh | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Plugins
+        run: claude plugin validate .
