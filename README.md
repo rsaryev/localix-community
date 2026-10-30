@@ -5,13 +5,14 @@ Mini apps and plugins that people publish in their own repositories, listed for
 
 This repository holds no code. It is two lists:
 
-| File                              | Lists      | Each entry names                                                         |
-| --------------------------------- | ---------- | ------------------------------------------------------------------------ |
-| `.mini-app/marketplace.json`      | Mini apps  | The author's own catalog: a GitHub repository's release, or an address.  |
-| `.claude-plugin/marketplace.json` | Plugins    | The repository the plugin lives in, as a Claude Code marketplace does.   |
+| File                                 | Lists     | Each entry names                                                              |
+| ------------------------------------ | --------- | ----------------------------------------------------------------------------- |
+| `.localix-mini-app/marketplace.json` | Mini apps | The author's own marketplace: a GitHub repository's release, or an address.   |
+| `.claude-plugin/marketplace.json`    | Plugins   | The repository the plugin lives in, as a Claude Code marketplace does.        |
 
 Both have the shape of a Claude Code `marketplace.json`: a `name`, an `owner`, `metadata`, and
-entries with a `name`, a `description` and a `source`.
+entries with a `name`, a `description` and a `source`. Each change to the mini app list is released,
+signed, as `mini-app-marketplace.json`: that release is what Localix reads.
 
 ## Using it
 
@@ -30,15 +31,16 @@ claude plugin install <plugin>@localix-community
 Nothing here. Every entry is its author's, and Localix treats it that way:
 
 - Installing asks first, and says the publisher is not verified.
-- A mini app is read from its author's catalog, which says what it is. That catalog's signature
-  decides how it updates: **Signed** apps update on their own, **Not signed** apps update when you
-  choose **Update**, and an app whose **Signature changed** installs nothing until you decide.
-- A mini app updates only from the catalog it was installed from, and never takes the name of an app
-  in Localix's own catalog.
-- Nothing here is featured or recommended.
+- A mini app is read from its author's marketplace, which says what it is. That marketplace's
+  signature decides how it updates: **Signed** apps update on their own, **Not signed** apps update
+  when you choose **Update**, and an app whose **Signature changed** installs or updates nothing.
+- A mini app is known as `<name>@localix-community`, never as one of Localix's own
+  (`<name>@localix`), and updates only from the marketplace it was installed from.
+- Nothing here is featured, installed on its own or suggested: Localix takes no curation from this
+  list.
 
 What the list says about an entry (its description, category, homepage) fills in only what the
-author's own catalog or manifest leaves out.
+author's own marketplace leaves out.
 
 ## Adding yours
 

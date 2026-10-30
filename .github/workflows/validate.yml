@@ -1,9 +1,10 @@
 name: Validate
 
 # Every pull request, every push to main, and every night: both lists pass the checks Localix and
-# Claude Code apply to them. Mini app entries are followed to their authors' catalogs, which must
-# answer, list the app, and not take a name from Localix's own catalog. Nothing an entry points at
-# is run.
+# Claude Code apply to them. Mini app entries are checked with Localix's own rules (from the mini app
+# kit; no curation: Localix takes none from this list) and followed to their authors' released
+# marketplaces, which must answer, read as Localix reads them, and build the app. Nothing an entry
+# points at is run.
 on:
   push:
     branches: [main]
@@ -27,10 +28,7 @@ jobs:
           sparse-checkout: plugins/mini-app-authoring
       - uses: oven-sh/setup-bun@v2
       - name: Mini apps
-        run: |
-          .localix-marketplace/plugins/mini-app-authoring/bin/mini-app marketplace validate \
-            .mini-app/marketplace.json --fetch \
-            --reserve https://github.com/rsaryev/localix-marketplace/releases/latest/download/mini-app-catalog.json
+        run: .localix-marketplace/plugins/mini-app-authoring/bin/mini-app marketplace validate --fetch
 
   plugins:
     runs-on: ubuntu-latest

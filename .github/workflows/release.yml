@@ -1,0 +1,54 @@
+name: Release
+
+# Every change to the mini app list on main: check it, build it into the released marketplace
+# Localix reads (`mini-app-marketplace.json`, the links as they are), sign it with Localix
+# Community's key, and publish it as the latest release. Localix reads
+# https://github.com/rsaryev/localix-community/releases/latest/download/mini-app-marketplace.json
+# and checks its signature against the key it ships for this list; each release is stamped with when
+# it was made, and Localix refuses one older than the last it read.
+on:
+  push:
+    branches: [main]
+    paths: ['.localix-mini-app/marketplace.json']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: rsaryev/localix-marketplace
+          path: .localix-marketplace
+          sparse-checkout: plugins/mini-app-authoring
+      - uses: oven-sh/setup-bun@v2
+      - name: Check
+        run: .localix-marketplace/plugins/mini-app-authoring/bin/mini-app marketplace validate --fetch
+      - name: Build
+        run: .localix-marketplace/plugins/mini-app-authoring/bin/mini-app marketplace build --out dist/marketplace
+      # The private half of the key Localix ships for this list (\`LOCALIX_COMMUNITY.signingKeys\`).
+      - name: Sign
+        env:
+          MINI_APP_SIGNING_KEY: ${{ secrets.MINI_APP_SIGNING_KEY }}
+        run: |
+          if [ -z "$MINI_APP_SIGNING_KEY" ]; then
+            echo "::error::MINI_APP_SIGNING_KEY is not set: a release of Localix Community is signed."
+            exit 1
+          fi
+          .localix-marketplace/plugins/mini-app-authoring/bin/mini-app sign dist/marketplace
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="list-$(date -u +%Y%m%d-%H%M%S)"
+          gh release create "$tag" dist/marketplace/* --repo "$GITHUB_REPOSITORY" \
+            --title "Localix Community $tag" --latest \
+            --notes "The mini app list at $GITHUB_SHA, signed."

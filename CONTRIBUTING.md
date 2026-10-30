@@ -6,30 +6,31 @@ maintainer reviews and merges it.
 ## A mini app
 
 1. Publish it from its own public repository with the Localix authoring plugin
-   (`/mini-app-authoring:publish`). Each tag `v<version>` then releases its catalog, at
-   `https://github.com/<owner>/<repo>/releases/latest/download/mini-app-catalog.json`. Signing it
-   (`mini-app keygen` and the `MINI_APP_SIGNING_KEY` secret) lets installed copies update on their
+   (`/mini-app-authoring:publish`). Each tag `v<version>` then releases its marketplace, at
+   `https://github.com/<owner>/<repo>/releases/latest/download/mini-app-marketplace.json`. Signing
+   it (`mini-app keygen` and the `MINI_APP_SIGNING_KEY` secret) lets installed copies update on their
    own.
-2. Add it to `.mini-app/marketplace.json`:
+2. Add it to `.localix-mini-app/marketplace.json`:
 
    ```json
    {
      "name": "notes",
+     "source": { "source": "github", "repo": "ada/notes" },
      "description": "Notes beside every chat, kept by you and the agent.",
      "category": "utilities",
-     "source": { "source": "github", "repo": "ada/notes" },
      "homepage": "https://github.com/ada/notes"
    }
    ```
 
-   `name` is the app's name in its `mini-app.json`. `source` is `github` (`repo`: the repository
-   whose latest release publishes the catalog) or `url` (`url`: the catalog's `https://` address).
-   `category` and `homepage` are optional.
+   `name` is the app's name in its `.localix-mini-app/mini-app.json`. `source` is `github` (`repo`:
+   the repository whose latest release publishes its marketplace) or `url` (`url`: the released
+   marketplace's `https://` address). `category`, `displayName` and `homepage` are optional;
+   `featured`, `installByDefault`, `suggestFor` and `collections` are refused here.
 
 3. Check it locally with the authoring plugin's CLI:
 
    ```bash
-   mini-app marketplace validate .mini-app/marketplace.json --fetch
+   mini-app marketplace validate --fetch
    ```
 
 ## A plugin
@@ -57,10 +58,12 @@ its repository, pinned to a commit:
 
 ## The rules
 
-- **One entry per name.** Names are unique and sorted. A mini app may not take a name that Localix's
-  own catalog has.
+- **One entry per name.** Names are unique and sorted. A mini app here is `<name>@localix-community`,
+  so it never stands in for one of Localix's own.
 - **A description of 10 to 2000 characters** that says what it does, with no invisible characters.
 - **`https://` sources only**, on GitHub, GitLab or Bitbucket for plugins.
 - **It works as described** and does nothing it does not say. It does not collect data it does not
   need or send it anywhere unannounced.
-- **It stays reachable.** An entry whose repository or catalog disappears is removed.
+- **It stays reachable.** An entry whose repository or marketplace disappears is removed.
+- **Taking one back.** An entry that harms people is revoked rather than deleted
+  (`"revoked": { "reason": "…" }`): installed copies stop, and say why.
